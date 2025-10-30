@@ -1,0 +1,9 @@
+| Action               | Role                    | Description              |
+| -------------------- | ----------------------- | ------------------------ |
+| Create new event     | `merchant`              | POST `/api/events`       |
+| Update own event     | `merchant`              | PUT `/api/events/:id`    |
+| Delete own event     | `merchant`              | DELETE `/api/events/:id` |
+| View all own events  | `merchant`              | GET `/api/events/mine`   |
+| View all events      | `customer` & `merchant` | GET `/api/events`        |
+| Buy ticket           | `customer`              | POST `/api/tickets`      |
+| Scan / verify ticket | `merchant`              | POST `/api/verify`       |
