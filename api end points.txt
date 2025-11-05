@@ -1,9 +1,147 @@
-| Action               | Role                    | Description              |
-| -------------------- | ----------------------- | ------------------------ |
-| Create new event     | `merchant`              | POST `/api/events`       |
-| Update own event     | `merchant`              | PUT `/api/events/:id`    |
-| Delete own event     | `merchant`              | DELETE `/api/events/:id` |
-| View all own events  | `merchant`              | GET `/api/events/mine`   |
-| View all events      | `customer` & `merchant` | GET `/api/events`        |
-| Buy ticket           | `customer`              | POST `/api/tickets`      |
-| Scan / verify ticket | `merchant`              | POST `/api/verify`       |
+Excellent question 👏 — yes, the **backend structure and code** I gave you is *fully compatible* with your SQL schema, but let’s go through this carefully so you understand **how and why everything fits together**, and what small improvements we should make to ensure perfect alignment.
+
+---
+
+## 🧩 1️⃣ Your Schema Summary
+
+Let’s briefly recap your tables (you did a great job designing them):
+
+| Table            | Purpose                                                       |
+| ---------------- | ------------------------------------------------------------- |
+| **users**        | Base table for everyone — `admin`, `merchant`, and `customer` |
+| **merchants**    | Extends `users` with merchant-specific info & verification    |
+| **events**       | Created by merchants, sold to customers                       |
+| **ticket_types** | Ticket tiers per event (VIP, standard, etc.)                  |
+| **orders**       | Customer purchases                                            |
+| **order_items**  | Individual tickets in each order                              |
+| **refunds**      | Handles refund requests                                       |
+| **audit_logs**   | Tracks admin actions                                          |
+| **documents**    | Stores uploaded verification files                            |
+
+---
+
+## ⚙️ 2️⃣ Backend Compatibility
+
+Here’s how the **backend code** matches with your **database schema**:
+
+| Backend Part                        | Schema Relation                                 | Notes                                                     |
+| ----------------------------------- | ----------------------------------------------- | --------------------------------------------------------- |
+| `/routes/userRoutes.ts`             | → `users`                                       | Handles signup/login for customers (and admins if needed) |
+| `/routes/merchantRoutes.ts`         | → `users`, `merchants`, `documents`             | Merchant registration, verification uploads, etc.         |
+| `/routes/eventRoutes.ts`            | → `events`, `ticket_types`                      | Event creation, editing, publishing                       |
+| `/routes/adminRoutes.ts`            | → `audit_logs`, `merchants`, `refunds`, `users` | Admin verification, account approvals, and logging        |
+| `/routes/orderRoutes.ts` *(to add)* | → `orders`, `order_items`, `refunds`            | Handles customer ticket purchases, refunds, etc.          |
+
+✅ So yes — your backend structure **already supports** all these entities conceptually.
+We just need to add models and routes for the extra entities (orders, refunds, logs).
+
+---
+
+## 🧠 3️⃣ Improvements to Ensure Full Compatibility
+
+Here’s what we should **add or refine**:
+
+### a. Database UUIDs
+
+Since your schema uses `UUID` for all IDs, ensure that your backend:
+
+* Uses **UUIDs** instead of `SERIAL` IDs.
+* Imports `uuid` package for generating UUIDs when inserting manually.
+
+```bash
+npm install uuid
+```
+
+Usage example in controllers:
+
+```ts
+import { v4 as uuidv4 } from 'uuid';
+
+const newUserId = uuidv4();
+```
+
+---
+
+### b. Password Field Name
+
+In schema: `password_hash`
+In backend code: `password`
+
+✅ Fix → Use `password_hash` consistently in DB and code.
+
+Example for hashing:
+
+```ts
+import bcrypt from 'bcryptjs';
+
+// Hash password before saving
+const hashedPassword = await bcrypt.hash(password, 10);
+
+await pool.query(
+  `INSERT INTO users (id, role, first_name, last_name, email, password_hash)
+   VALUES ($1, $2, $3, $4, $5, $6)`,
+  [uuidv4(), 'customer', firstName, lastName, email, hashedPassword]
+);
+```
+
+---
+
+### c. Email Sending
+
+In your schema, `order_items` has `qr_code_data`.
+So when the customer buys a ticket:
+
+* Generate a QR code (use `qrcode` npm package).
+* Send it via email (`nodemailer`).
+
+---
+
+### d. Role-Based Access Control (RBAC)
+
+You’ll need middleware that:
+
+* Verifies JWT tokens.
+* Checks if the user’s role allows certain actions.
+
+Example (in `/middleware/authMiddleware.ts`):
+
+```ts
+export const authorizeRoles = (...roles: string[]) => {
+  return (req: any, res: any, next: any) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    next();
+  };
+};
+```
+
+---
+
+## 🧩 4️⃣ Missing Pieces to Add Next
+
+To make your backend 100% schema-complete, add these next files:
+
+| File                                 | Purpose                                 |
+| ------------------------------------ | --------------------------------------- |
+| `src/routes/orderRoutes.ts`          | Handles ticket purchases & refunds      |
+| `src/controllers/orderController.ts` | Logic for orders, order items, refunds  |
+| `src/models/orderModel.ts`           | SQL queries for orders and items        |
+| `src/utils/emailService.ts`          | Sends QR codes and notifications        |
+| `src/utils/qrcodeGenerator.ts`       | Generates QR strings/images for tickets |
+
+---
+
+## 🚀 5️⃣ Summary: Your System Flow
+
+**1. Merchant signs up** → stored in `users` + `merchants` tables → admin verifies.
+**2. Merchant creates event** → `events` + `ticket_types`.
+**3. Customer signs up & buys ticket** → `orders` + `order_items`.
+**4. System emails QR ticket** → `qr_code_data` field.
+**5. Refund requests** → stored in `refunds`.
+**6. Admin actions logged in `audit_logs`.**
+
+---
+
+Would you like me to help you **start coding the authentication routes next** (for `users` and `merchants`)?
+That’s the best logical next step before we handle events and payments.

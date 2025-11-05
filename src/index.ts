@@ -1,19 +1,41 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import userRoutes from './routes/usersRoutes';
-import eventRoutes from './routes/eventsRoutes';
+import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import userRoutes from './routes/userRoutes';
+import merchantRoutes from './routes/merchantRoutes';
 
-dotenv.config();
+// import eventRoutes from './routes/eventRoutes';
+// import orderRoutes from './routes/orderRoutes';
+// import refundRoutes from './routes/refundRoutes';
+// import adminRoutes from './routes/adminRoutes';
+import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
+
+// Global middleware
+app.use(cors());
 app.use(express.json());
 
-app.get('/ping', (_req, res) => {
-  res.send('API working ✅');
+// Health check endpoint
+app.get('/ping', (_req: Request, res: Response) => res.send('✅ Tickify API running'));
+
+// API routes
+app.use('/api/users', userRoutes);
+app.use('/api/merchants', merchantRoutes);
+app.use('/uploads', express.static('uploads'));
+
+// app.use('/api/events', eventRoutes);
+// app.use('/api/orders', orderRoutes);
+// app.use('/api/refunds', refundRoutes);
+// app.use('/api/admin', adminRoutes);
+
+// Error handling
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ 
+    message: process.env.NODE_ENV === 'production' 
+      ? 'Internal server error' 
+      : err.message 
+  });
 });
 
-app.use('/api/users', userRoutes);
-app.use('/api/events', eventRoutes);
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+export default app;

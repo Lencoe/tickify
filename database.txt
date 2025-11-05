@@ -1,0 +1,147 @@
+-- 1. USERS TABLE (Base for admin, merchant, and customer)
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    role VARCHAR(20) CHECK (role IN ('admin', 'merchant', 'customer')) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    phone VARCHAR(20),
+    id_number VARCHAR(20),
+    address TEXT,
+    is_verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. MERCHANTS TABLE (Extra info for users with role='merchant')
+CREATE TABLE merchants (
+    id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    company_name VARCHAR(150) NOT NULL,
+    physical_address TEXT,
+    bank_account_details TEXT,
+    cipc_document_url TEXT,
+    id_document_url TEXT,
+    proof_of_residence_url TEXT,
+    proof_of_bank_url TEXT,
+    business_registration_number VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','verified','rejected')),
+    verification_notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. EVENTS TABLE
+CREATE TABLE events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    merchant_id UUID REFERENCES merchants(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    category VARCHAR(50) CHECK (category IN ('concert','sports','theatre','comedy','festival','conference')) NOT NULL,
+    venue_name VARCHAR(255),
+    venue_address TEXT,
+    start_datetime TIMESTAMP NOT NULL,
+    end_datetime TIMESTAMP NOT NULL,
+    age_restriction INTEGER,
+    image_url TEXT,
+    status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft','published','cancelled')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. TICKET TYPES TABLE (Each event can have multiple ticket tiers)
+CREATE TABLE ticket_types (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL, -- e.g., "VIP", "Standard"
+    price_cents INTEGER NOT NULL,
+    currency VARCHAR(10) DEFAULT 'ZAR',
+    total_quantity INTEGER NOT NULL,
+    available_quantity INTEGER NOT NULL,
+    sales_start TIMESTAMP,
+    sales_end TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 5. ORDERS TABLE (Represents a customer's purchase)
+CREATE TABLE orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    customer_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    merchant_id UUID REFERENCES merchants(id) ON DELETE SET NULL,
+    total_amount_cents INTEGER NOT NULL,
+    currency VARCHAR(10) DEFAULT 'ZAR',
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','paid','cancelled','refunded')),
+    payment_provider VARCHAR(50),
+    payment_reference VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. ORDER ITEMS TABLE (Tickets in each order)
+CREATE TABLE order_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+    ticket_type_id UUID REFERENCES ticket_types(id),
+    quantity INTEGER NOT NULL,
+    unit_price_cents INTEGER NOT NULL,
+    qr_code_data TEXT, -- store QR string or link to image
+    ticket_status VARCHAR(20) DEFAULT 'valid' CHECK (ticket_status IN ('valid','used','refunded')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. REFUNDS TABLE
+CREATE TABLE refunds (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+    amount_cents INTEGER NOT NULL,
+    reason TEXT,
+    requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    processed_at TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'requested' CHECK (status IN ('requested','approved','rejected','completed'))
+);
+
+-- 8. AUDIT LOGS (For admin visibility)
+CREATE TABLE audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    action VARCHAR(100),
+    resource_type VARCHAR(50),
+    resource_id UUID,
+    details TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 9. DOCUMENTS TABLE (for uploaded files)
+CREATE TABLE documents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(50), -- e.g. 'id_copy', 'proof_of_residence'
+    file_url TEXT,
+    verified BOOLEAN DEFAULT FALSE,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO users (role, first_name, last_name, email, password_hash, is_verified)
+VALUES (
+  'admin',
+  'System',
+  'Admin',
+  'admin@tickify.com',
+  crypt('Admin123!', gen_salt('bf')),  -- bcrypt hash in Postgres
+  TRUE
+);
+
+
+INSERT INTO users (role, first_name, last_name, email, password_hash, is_verified)
+VALUES (
+  'admin',
+  'System',
+  'Admin',
+  'admin@tickify.com',
+  crypt('Admin123!', gen_salt('bf')),  
+  TRUE
+);
+
+
+
