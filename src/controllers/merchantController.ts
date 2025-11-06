@@ -1,162 +1,147 @@
-// src/controllers/merchantEventController.ts
-
 import { Request, Response } from 'express';
 import pool from '../config/db';
+import bcrypt from 'bcryptjs';
 
 // -----------------------------
-// 1️⃣ Create a new event
+// 1️⃣ Register a new merchant
 // -----------------------------
-export const createEvent = async (req: Request, res: Response) => {
-  const merchantId = req.user?.id;
-  const {
-    title,
-    description,
-    category,
-    venue_name,
-    venue_address,
-    start_datetime,
-    end_datetime,
-    age_restriction
-  } = req.body;
-
-  if (!title || !category || !start_datetime || !end_datetime) {
-    return res.status(400).json({ message: 'Missing required fields: title, category, start_datetime, end_datetime' });
-  }
-
+export const registerMerchant = async (req: Request, res: Response) => {
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
-      `INSERT INTO events (
-        merchant_id, title, description, category, venue_name, venue_address,
-        start_datetime, end_datetime, age_restriction, status
-      )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'draft')
-      RETURNING *`,
-      [merchantId, title, description, category, venue_name, venue_address, start_datetime, end_datetime, age_restriction || null]
-    );
+    const {
+      first_name,
+      last_name,
+      email,
+      password,
+      phone,
+      id_number,
+      address,
+      company_name,
+      physical_address,
+      bank_account_details,
+      business_registration_number
+    } = req.body;
 
-    res.status(201).json({ message: 'Event created successfully', event: result.rows[0] });
-  } catch (err) {
-    console.error('Error creating event:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+    // Uploaded files (via Multer)
+    const uploadedFiles = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-// -----------------------------
-// 2️⃣ Update an existing event
-// -----------------------------
-export const updateEvent = async (req: Request, res: Response) => {
-  const merchantId = req.user?.id;
-  const eventId = req.params.id;
-  const updates = req.body;
+    const cipc_document_url = uploadedFiles?.cipc_document
+      ? `/uploads/${uploadedFiles.cipc_document[0].filename}`
+      : null;
 
-  try {
-    // Check if event belongs to this merchant
-    const eventCheck = await pool.query('SELECT * FROM events WHERE id=$1 AND merchant_id=$2', [eventId, merchantId]);
-    if (eventCheck.rows.length === 0) {
-      return res.status(404).json({ message: 'Event not found or unauthorized' });
+    const id_document_url = uploadedFiles?.id_document
+      ? `/uploads/${uploadedFiles.id_document[0].filename}`
+      : null;
+
+    const proof_of_residence_url = uploadedFiles?.proof_of_residence
+      ? `/uploads/${uploadedFiles.proof_of_residence[0].filename}`
+      : null;
+
+    const proof_of_bank_url = uploadedFiles?.proof_of_bank
+      ? `/uploads/${uploadedFiles.proof_of_bank[0].filename}`
+      : null;
+
+    // Check required fields
+    if (!first_name || !last_name || !email || !password || !company_name) {
+      return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Build dynamic update query
-    const fields = Object.keys(updates);
-    const values = Object.values(updates);
-    const setQuery = fields.map((f, i) => `${f}=$${i + 1}`).join(', ');
-
-    const result = await pool.query(`UPDATE events SET ${setQuery}, updated_at=CURRENT_TIMESTAMP WHERE id=$${fields.length + 1} RETURNING *`, [...values, eventId]);
-    res.status(200).json({ message: 'Event updated successfully', event: result.rows[0] });
-  } catch (err) {
-    console.error('Error updating event:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-// -----------------------------
-// 3️⃣ Cancel an event
-// -----------------------------
-export const cancelEvent = async (req: Request, res: Response) => {
-  const merchantId = req.user?.id;
-  const eventId = req.params.id;
-
-  try {
-    const result = await pool.query(
-      `UPDATE events SET status='cancelled', updated_at=CURRENT_TIMESTAMP
-       WHERE id=$1 AND merchant_id=$2 RETURNING *`,
-      [eventId, merchantId]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Event not found or unauthorized' });
+    // Check if user exists
+    const existingUser = await client.query('SELECT * FROM users WHERE email=$1', [email]);
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    res.status(200).json({ message: 'Event cancelled successfully', event: result.rows[0] });
-  } catch (err) {
-    console.error('Error cancelling event:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-// -----------------------------
-// 4️⃣ Get all events for this merchant (optionally filter by category)
-// -----------------------------
-export const getEvents = async (req: Request, res: Response) => {
-  const merchantId = req.user?.id;
-  const category = req.query.category as string | undefined;
+    // Transaction
+    await client.query('BEGIN');
 
-  try {
-    let query = 'SELECT * FROM events WHERE merchant_id=$1';
-    const params: any[] = [merchantId];
+    // Insert user
+    const userResult = await client.query(
+      `INSERT INTO users (
+        role, first_name, last_name, email, password_hash, phone, id_number, address, is_verified
+      ) VALUES ('merchant', $1,$2,$3,$4,$5,$6,$7,FALSE) RETURNING id`,
+      [first_name, last_name, email, hashedPassword, phone||null, id_number||null, address||null]
+    );
+    const userId = userResult.rows[0].id;
 
-    if (category) {
-      query += ' AND category=$2';
-      params.push(category);
-    }
-
-    const result = await pool.query(query, params);
-    res.status(200).json(result.rows);
-  } catch (err) {
-    console.error('Error fetching events:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-// -----------------------------
-// 5️⃣ Generate reports for an event
-// -----------------------------
-export const getEventReports = async (req: Request, res: Response) => {
-  const merchantId = req.user?.id;
-  const eventId = req.params.id;
-
-  try {
-    // Check event belongs to merchant
-    const eventCheck = await pool.query('SELECT * FROM events WHERE id=$1 AND merchant_id=$2', [eventId, merchantId]);
-    if (eventCheck.rows.length === 0) return res.status(404).json({ message: 'Event not found or unauthorized' });
-
-    // Total ticket sales
-    const salesResult = await pool.query(
-      `SELECT SUM(oi.quantity) AS tickets_sold, SUM(oi.quantity * oi.unit_price_cents) AS revenue_cents
-       FROM order_items oi
-       JOIN orders o ON oi.order_id=o.id
-       WHERE o.merchant_id=$1 AND oi.ticket_type_id IN (SELECT id FROM ticket_types WHERE event_id=$2)`,
-      [merchantId, eventId]
+    // Insert merchant details
+    await client.query(
+      `INSERT INTO merchants (
+        id, company_name, physical_address, bank_account_details, cipc_document_url,
+        id_document_url, proof_of_residence_url, proof_of_bank_url, business_registration_number, status
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending')`,
+      [userId, company_name, physical_address||null, bank_account_details||null, cipc_document_url,
+        id_document_url, proof_of_residence_url, proof_of_bank_url, business_registration_number||null]
     );
 
-    // Refunds
-    const refundResult = await pool.query(
-      `SELECT SUM(amount_cents) AS refunded_cents, COUNT(*) AS refund_count
-       FROM refunds r
-       JOIN orders o ON r.order_id=o.id
-       WHERE o.merchant_id=$1 AND o.id IN (SELECT order_id FROM order_items WHERE ticket_type_id IN (SELECT id FROM ticket_types WHERE event_id=$2))`,
-      [merchantId, eventId]
-    );
+    await client.query('COMMIT');
 
-    res.status(200).json({
-      event: eventCheck.rows[0],
-      tickets_sold: salesResult.rows[0].tickets_sold || 0,
-      revenue_cents: salesResult.rows[0].revenue_cents || 0,
-      refunded_cents: refundResult.rows[0].refunded_cents || 0,
-      refund_count: refundResult.rows[0].refund_count || 0
+    res.status(201).json({
+      message: 'Merchant registered successfully. Awaiting verification by admin.',
+      merchant_id: userId
     });
-  } catch (err) {
-    console.error('Error generating report:', err);
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error registering merchant:', error);
     res.status(500).json({ message: 'Internal server error' });
+  } finally {
+    client.release();
+  }
+};
+
+// -----------------------------
+// 2️⃣ Get all pending merchants (Admin only)
+// -----------------------------
+export const getPendingMerchants = async (_req: Request, res: Response) => {
+  try {
+    const result = await pool.query(
+      `SELECT m.*, u.first_name, u.last_name, u.email, u.phone
+       FROM merchants m
+       JOIN users u ON m.id=u.id
+       WHERE m.status='pending'`
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching pending merchants:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// -----------------------------
+// 3️⃣ Verify or reject merchant (Admin only)
+// -----------------------------
+export const verifyMerchant = async (req: Request, res: Response) => {
+  const client = await pool.connect();
+  try {
+    const { id } = req.params;
+    const { status, verification_notes } = req.body;
+
+    if (!['verified','rejected'].includes(status)) {
+      return res.status(400).json({ message: "Status must be 'verified' or 'rejected'" });
+    }
+
+    await client.query('BEGIN');
+
+    await client.query(
+      `UPDATE merchants SET status=$1, verification_notes=$2, updated_at=CURRENT_TIMESTAMP WHERE id=$3`,
+      [status, verification_notes||null, id]
+    );
+
+    if (status === 'verified') {
+      await client.query(`UPDATE users SET is_verified=TRUE WHERE id=$1`, [id]);
+    }
+
+    await client.query('COMMIT');
+    res.status(200).json({ message: `Merchant ${status} successfully.` });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error updating merchant status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  } finally {
+    client.release();
   }
 };

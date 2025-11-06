@@ -1,26 +1,25 @@
 import express from 'express';
+import { registerMerchant, getPendingMerchants, verifyMerchant } from '../controllers/merchantController';
+import upload from '../middleware/uploadMiddleware';
 import { authenticateJWT } from '../middleware/authMiddleware';
 import { requireRole } from '../middleware/roleMiddleware';
-import {
-  createEvent,
-  updateEvent,
-  cancelEvent,
-  getEvents,
-  getEventReports
-} from '../controllers/merchantController';
 
 const router = express.Router();
 
-// All merchant routes require JWT and role='merchant'
-router.use(authenticateJWT, requireRole('merchant'));
+// Public route: merchant registration
+router.post(
+  '/register',
+  upload.fields([
+    { name: 'id_document', maxCount: 1 },
+    { name: 'proof_of_residence', maxCount: 1 },
+    { name: 'proof_of_bank', maxCount: 1 },
+    { name: 'cipc_document', maxCount: 1 }
+  ]),
+  registerMerchant
+);
 
-// Event management
-router.post('/events', createEvent);
-router.put('/events/:id', updateEvent);
-router.delete('/events/:id', cancelEvent);
-router.get('/events', getEvents);
-
-// Reports
-router.get('/events/:id/reports', getEventReports);
+// Admin-only routes
+router.get('/pending', authenticateJWT, requireRole('admin'), getPendingMerchants);
+router.put('/:id/verify', authenticateJWT, requireRole('admin'), verifyMerchant);
 
 export default router;

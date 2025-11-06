@@ -3,8 +3,16 @@ import jwt, { JwtPayload as JwtPayloadType } from 'jsonwebtoken';
 
 interface JwtPayload extends JwtPayloadType {
   id?: string;
-  userId?: string;
-  role?: string;
+  role?: 'admin' | 'merchant' | 'customer';
+}
+
+// Extend Express Request to include `user`
+declare global {
+  namespace Express {
+    interface Request {
+      user?: { id: string; role: 'admin' | 'merchant' | 'customer' };
+    }
+  }
 }
 
 export const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
@@ -18,10 +26,11 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
-    const id = payload.id || payload.userId;
-    if (!id) return res.status(403).json({ message: 'Forbidden: Invalid token payload' });
+    if (!payload.id || !payload.role) {
+      return res.status(403).json({ message: 'Forbidden: Invalid token payload' });
+    }
 
-    req.user = { id, role: payload.role };
+    req.user = { id: payload.id, role: payload.role };
     next();
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
