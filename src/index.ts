@@ -3,11 +3,10 @@ import cors from 'cors';
 import userRoutes from './routes/userRoutes';
 import merchantRoutes from './routes/merchantRoutes';
 import merchantEventRoutes from "./routes/merchantEventRoutes";
-
-// import eventRoutes from './routes/eventRoutes';
-// import orderRoutes from './routes/orderRoutes';
+import ticketRoutes from './routes/ticketRoutes';
+import orderRoutes from './routes/orderRoutes';
 // import refundRoutes from './routes/refundRoutes';
-// import adminRoutes from './routes/adminRoutes';
+
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -24,11 +23,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/merchants', merchantRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use("/api/merchant", merchantEventRoutes);
-
-// app.use('/api/events', eventRoutes);
-// app.use('/api/orders', orderRoutes);
+app.use('/api/tickets', ticketRoutes);
+app.use('/api/orders', orderRoutes);
 // app.use('/api/refunds', refundRoutes);
-// app.use('/api/admin', adminRoutes);
+
 
 // Error handling
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

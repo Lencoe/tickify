@@ -133,16 +133,4 @@ VALUES (
 );
 
 
-INSERT INTO users (role, first_name, last_name, email, password_hash, is_verified)
-VALUES (
-  'admin',
-  'System',
-  'Admin',
-  'admin@tickify.com',
-  crypt('Admin123!', gen_salt('bf')),  
-  TRUE
-);
-
-
-admin@tickify.com
 
