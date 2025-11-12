@@ -1,98 +1,140 @@
+// src/controllers/orderController.ts
 import { Request, Response } from "express";
-import { OrderModel } from "../models/Order.js";
-import { OrderItemModel } from "../models/OrderItem.js";
-import pool from "../config/db.js";
+import pool from "../config/db";
 
-// Create an order (buy ticket)
-export const createOrder = async (req: Request, res: Response) => {
-  const client = await pool.connect();
+// ------------------------------------------
+// 🟩 Create new order (Customer buys tickets)
+// ------------------------------------------
+export const createOrder = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { items } = req.body; 
-    const user_id = (req as any).user?.id; // assume middleware sets req.user
-    if (!user_id) return res.status(401).json({ message: "Unauthorized" });
+    const { merchant_id, total_amount_cents, currency, items } = req.body;
+    const customer_id = (req as any).user?.id; // from JWT
 
-    if (!items || items.length === 0)
-      return res.status(400).json({ message: "No tickets selected" });
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      res.status(400).json({ message: "No order items provided." });
+      return;
+    }
 
-    await client.query("BEGIN");
+    // ✅ Create the order
+    const orderResult = await pool.query(
+      `INSERT INTO orders (customer_id, merchant_id, total_amount_cents, currency)
+       VALUES ($1, $2, $3, COALESCE($4, 'ZAR'))
+       RETURNING *;`,
+      [customer_id, merchant_id, total_amount_cents, currency]
+    );
+    const order = orderResult.rows[0];
 
-    let totalAmount = 0;
+    // ✅ Insert order items
     for (const item of items) {
-      const ticket = await client.query(
-        `SELECT * FROM ticket_types WHERE id = $1`,
-        [item.ticket_type_id]
+      const { ticket_type_id, quantity, unit_price_cents } = item;
+
+      await pool.query(
+        `INSERT INTO order_items (order_id, ticket_type_id, quantity, unit_price_cents)
+         VALUES ($1, $2, $3, $4);`,
+        [order.id, ticket_type_id, quantity, unit_price_cents]
       );
 
-      if (ticket.rows.length === 0)
-        throw new Error(`Ticket type ${item.ticket_type_id} not found`);
-
-      const ticketData = ticket.rows[0];
-      if (ticketData.available_quantity < item.quantity)
-        throw new Error(`Not enough tickets available for ${ticketData.name}`);
-
-      totalAmount += ticketData.price * item.quantity;
-
-      // Deduct ticket stock
-      await client.query(
-        `UPDATE ticket_types SET available_quantity = available_quantity - $1 WHERE id = $2`,
-        [item.quantity, item.ticket_type_id]
+      // 🔹 Decrease available tickets
+      await pool.query(
+        `UPDATE ticket_types 
+         SET available_quantity = available_quantity - $1 
+         WHERE id = $2 AND available_quantity >= $1;`,
+        [quantity, ticket_type_id]
       );
     }
 
-    // Create order
-    const order = await OrderModel.create({
-      user_id,
-      total_amount: totalAmount,
-      status: "pending",
+    res.status(201).json({
+      message: "Order created successfully.",
+      order,
     });
+  } catch (error) {
+    console.error("❌ Error creating order:", error);
+    res.status(500).json({ message: "Failed to create order", error });
+  }
+};
 
-    // Create order items
-    for (const item of items) {
-      const ticket = await client.query(
-        `SELECT price FROM ticket_types WHERE id = $1`,
-        [item.ticket_type_id]
-      );
-      await OrderItemModel.create({
-        order_id: order.id!,
-        ticket_type_id: item.ticket_type_id,
-        quantity: item.quantity,
-        price: ticket.rows[0].price,
-      });
+// ------------------------------------------
+// 🟨 Get a specific order by ID
+// ------------------------------------------
+export const getOrderById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const { rows } = await pool.query(
+      `SELECT o.*, oi.ticket_type_id, oi.quantity, oi.unit_price_cents
+       FROM orders o
+       LEFT JOIN order_items oi ON o.id = oi.order_id
+       WHERE o.id = $1;`,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      res.status(404).json({ message: "Order not found." });
+      return;
     }
 
-    await client.query("COMMIT");
-    res.status(201).json({ message: "Order created", order });
-  } catch (error: any) {
-    await client.query("ROLLBACK");
-    res.status(500).json({ error: error.message });
-  } finally {
-    client.release();
+    res.json(rows);
+  } catch (error) {
+    console.error("❌ Error fetching order:", error);
+    res.status(500).json({ message: "Failed to get order", error });
   }
 };
 
-// Get all orders for logged-in customer
-export const getMyOrders = async (req: Request, res: Response) => {
+// ------------------------------------------
+// 🟦 Get all orders (Merchant/Admin only)
+// ------------------------------------------
+export const getAllOrders = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user_id = (req as any).user?.id;
-    if (!user_id) return res.status(401).json({ message: "Unauthorized" });
+    const user = (req as any).user;
 
-    const orders = await OrderModel.findByUser(user_id);
-    res.json(orders);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    let query = `SELECT * FROM orders`;
+    let values: any[] = [];
+
+    if (user.role === "merchant") {
+      query += ` WHERE merchant_id = $1`;
+      values = [user.id];
+    }
+
+    query += ` ORDER BY created_at DESC;`;
+
+    const { rows } = await pool.query(query, values);
+    res.json(rows);
+  } catch (error) {
+    console.error("❌ Error fetching orders:", error);
+    res.status(500).json({ message: "Failed to get orders", error });
   }
 };
 
-// Get order details
-export const getOrderById = async (req: Request, res: Response) => {
+// ------------------------------------------
+// 🟥 Update order status (Merchant/Admin only)
+// ------------------------------------------
+export const updateOrderStatus = async (req: Request, res: Response): Promise<void> => {
   try {
-    const orderId = Number(req.params.orderId);
-    const order = await OrderModel.findById(orderId);
-    if (!order) return res.status(404).json({ message: "Order not found" });
+    const { id } = req.params;
+    const { status } = req.body;
 
-    const items = await OrderItemModel.findByOrder(orderId);
-    res.json({ ...order, items });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    const validStatuses = ["pending", "paid", "cancelled", "refunded"];
+    if (!validStatuses.includes(status)) {
+      res.status(400).json({ message: "Invalid status." });
+      return;
+    }
+
+    const { rows } = await pool.query(
+      `UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *;`,
+      [status, id]
+    );
+
+    if (rows.length === 0) {
+      res.status(404).json({ message: "Order not found." });
+      return;
+    }
+
+    res.json({
+      message: "Order status updated successfully.",
+      order: rows[0],
+    });
+  } catch (error) {
+    console.error("❌ Error updating order status:", error);
+    res.status(500).json({ message: "Failed to update order status", error });
   }
 };

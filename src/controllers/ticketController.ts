@@ -58,8 +58,14 @@ export const updateTicketType = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({ message: 'Ticket updated successfully', ticket: updatedTicket });
-  } catch (err) {
+  } catch (err: any) {
     console.error('❌ Error updating ticket:', err);
+    
+    // Check if it's an unknown field error from the model
+    if (err.message && err.message.includes('Unknown fields')) {
+      return res.status(400).json({ message: err.message });
+    }
+
     return res.status(500).json({ message: 'Failed to update ticket type' });
   }
 };

@@ -1,12 +1,26 @@
+// src/routes/orderRoutes.ts
 import express from "express";
-import { createOrder, getMyOrders, getOrderById } from "../controllers/orderController.js";
-import { authenticateJWT } from "../middleware/authMiddleware.js"; 
+import { authenticateJWT } from "../middleware/authMiddleware";
+import { requireRole } from "../middleware/roleMiddleware";
+import {
+  createOrder,
+  getOrderById,
+  getAllOrders,
+  updateOrderStatus,
+} from "../controllers/orderController";
 
 const router = express.Router();
 
+// 🟩 Customer creates an order (buy tickets)
+router.post("/", authenticateJWT, requireRole("customer"), createOrder);
 
-router.post("/", authenticateJWT, createOrder);
-router.get("/", authenticateJWT, getMyOrders);
-router.get("/:orderId", authenticateJWT, getOrderById);
+// 🟨 Get a single order (customer, merchant, or admin can view)
+router.get("/:id", authenticateJWT, getOrderById);
+
+// 🟦 Merchant/Admin can view all orders
+router.get("/", authenticateJWT, requireRole(["merchant", "admin"]), getAllOrders);
+
+// 🟥 Merchant/Admin can update order status (paid, refunded, cancelled)
+router.patch("/:id/status", authenticateJWT, requireRole(["merchant", "admin"]), updateOrderStatus);
 
 export default router;

@@ -54,8 +54,17 @@ export const TicketTypeModel = {
 
   // 🔹 Update ticket details
   async update(ticketId: string, updates: Partial<TicketType>) {
-    const fields = Object.keys(updates);
-    const values = Object.values(updates);
+    // Whitelist allowed fields to prevent DB errors on unknown columns
+    const allowedFields = new Set(['name', 'price_cents', 'currency', 'total_quantity', 'available_quantity', 'sales_start', 'sales_end']);
+    
+    const fields = Object.keys(updates || {}).filter((f) => allowedFields.has(f));
+    const values = fields.map((f) => (updates as any)[f]);
+
+    // Check for unknown/legacy fields
+    const unknownFields = Object.keys(updates || {}).filter((f) => !allowedFields.has(f));
+    if (unknownFields.length > 0) {
+      throw new Error(`Unknown fields for ticket update: ${unknownFields.join(', ')}. Allowed fields: ${Array.from(allowedFields).join(', ')}`);
+    }
 
     if (fields.length === 0) return null;
 
