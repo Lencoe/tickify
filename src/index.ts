@@ -5,6 +5,8 @@ import merchantRoutes from './routes/merchantRoutes';
 import merchantEventRoutes from "./routes/merchantEventRoutes";
 import ticketRoutes from './routes/ticketRoutes';
 import orderRoutes from './routes/orderRoutes';
+import payfastRoutes from './routes/payfastRoutes';
+
 // import refundRoutes from './routes/refundRoutes';
 
 import { errorHandler } from './middleware/errorHandler';
@@ -14,6 +16,8 @@ const app = express();
 // Global middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
 
 // Health check endpoint
 app.get('/ping', (_req: Request, res: Response) => res.send('✅ Tickify API running'));
@@ -25,6 +29,8 @@ app.use('/uploads', express.static('uploads'));
 app.use("/api/merchant", merchantEventRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/payfast', payfastRoutes);
+
 // app.use('/api/refunds', refundRoutes);
 
 

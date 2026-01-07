@@ -122,6 +122,30 @@ CREATE TABLE documents (
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE payments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    customer_id UUID REFERENCES users(id) ON DELETE SET NULL,
+
+    provider VARCHAR(50) NOT NULL, -- 'payfast'
+    provider_reference VARCHAR(100), -- pf_payment_id
+    merchant_reference VARCHAR(100) NOT NULL, -- m_payment_id (order.id)
+
+    amount_cents INTEGER NOT NULL,
+    currency VARCHAR(10) DEFAULT 'ZAR',
+
+    status VARCHAR(20) NOT NULL CHECK (
+        status IN ('initiated','pending','paid','failed','cancelled','refunded')
+    ),
+
+    raw_notify_payload JSONB, -- store full ITN payload
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 INSERT INTO users (role, first_name, last_name, email, password_hash, is_verified)
 VALUES (
   'admin',

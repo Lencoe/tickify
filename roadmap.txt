@@ -1,0 +1,19 @@
+Payments Module (Paystack / Flutterwave / Stripe)
+
+Refunds Module
+
+QR Code generation for tickets
+
+Ticket scanning & validation endpoint
+
+Customer Profile endpoints
+
+Admin dashboard endpoints
+
+Finishing merchant onboarding workflow
+
+Fixing authentication & improving middleware
+
+Front-end API documentation + example requests
+
+Just tell me the number or describe what you want to build next.
