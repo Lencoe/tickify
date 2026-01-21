@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import userRoutes from './routes/userRoutes';
+import customerRoutes from './routes/customerRoutes';
 import merchantRoutes from './routes/merchantRoutes';
 import merchantEventRoutes from "./routes/merchantEventRoutes";
 import ticketRoutes from './routes/ticketRoutes';
@@ -24,6 +25,7 @@ app.get('/ping', (_req: Request, res: Response) => res.send('✅ Tickify API run
 
 // API routes
 app.use('/api/users', userRoutes);
+app.use('/api/customer', customerRoutes);
 app.use('/api/merchants', merchantRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use("/api/merchant", merchantEventRoutes);

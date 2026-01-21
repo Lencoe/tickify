@@ -195,7 +195,7 @@ http://localhost:3000
 
 ### 7. Create Event
 - **Method:** POST
-- **URL:** `http://localhost:3000/api/merchant/events`
+- **URL:** `eventshttp://localhost:3000/api/merchant/`
 - **Auth:** Bearer Token (Merchant JWT)
 - **Headers:**
   ```json

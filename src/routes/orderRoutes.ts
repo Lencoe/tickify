@@ -15,7 +15,8 @@ const router = express.Router();
 router.post("/", authenticateJWT, requireRole("customer"), createOrder);
 
 // 🟨 Get a single order (customer, merchant, or admin can view)
-router.get("/:id", authenticateJWT, getOrderById);
+router.get("/:id",authenticateJWT, requireRole(["merchant", "admin"]),getOrderById);
+
 
 // 🟦 Merchant/Admin can view all orders
 router.get("/", authenticateJWT, requireRole(["merchant", "admin"]), getAllOrders);
