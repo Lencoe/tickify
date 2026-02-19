@@ -145,6 +145,18 @@ CREATE TABLE payments (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE merchant_earnings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  merchant_id UUID REFERENCES merchants(id),
+  order_id UUID REFERENCES orders(id),
+  gross_amount NUMERIC(10,2),
+  platform_fee NUMERIC(10,2),
+  net_amount NUMERIC(10,2),
+  status VARCHAR(20) DEFAULT 'pending', -- pending | paid_out
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+
 
 INSERT INTO users (role, first_name, last_name, email, password_hash, is_verified)
 VALUES (

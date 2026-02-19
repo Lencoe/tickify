@@ -11,19 +11,19 @@ const PF_URL =
     : "https://sandbox.payfast.co.za/eng/process";
 
 // ---------------------------------------------------
-// 1️⃣ INITIATE PAYMENT (Customer → PayFast Redirect)
+//  INITIATE PAYMENT (Customer → PayFast Redirect)
 // ---------------------------------------------------
 export const initiatePayment = async (req: Request, res: Response) => {
   try {
     const { order_id } = req.body;
     const customerId = req.user?.id;
 
-    // 1️⃣ Validate input
+    //  Validate input
     if (!order_id) {
       return res.status(400).json({ message: "order_id is required" });
     }
 
-    // 2️⃣ Fetch order
+    //  Fetch order
     const orderResult = await pool.query(
       `SELECT * FROM orders WHERE id = $1`,
       [order_id]
@@ -35,17 +35,20 @@ export const initiatePayment = async (req: Request, res: Response) => {
 
     const order = orderResult.rows[0];
 
-    // 3️⃣ Ownership check (customer can only pay their own order)
+    //  Ownership check (customer can only pay their own order)
     if (order.customer_id !== customerId) {
       return res.status(403).json({ message: "Unauthorized access to order" });
     }
 
-    // 4️⃣ Prevent double payment
-    if (order.status === "paid") {
-      return res.status(400).json({ message: "Order already paid" });
-    }
+  //  Only allow payment for pending orders
+  if (order.status !== "pending") {
+    return res.status(400).json({
+      message: `Cannot pay an order with status '${order.status}'`,
+    });
+  }
 
-    // 5️⃣ Create payment record BEFORE redirect
+
+    //  Create payment record BEFORE redirect
     const paymentResult = await pool.query(
       `
       INSERT INTO payments (
@@ -69,7 +72,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
       ]
     );
 
-    // 6️⃣ Build PayFast payload
+    //  Build PayFast payload
     const data: any = {
       merchant_id: process.env.PAYFAST_MERCHANT_ID!,
       merchant_key: process.env.PAYFAST_MERCHANT_KEY!,
@@ -82,26 +85,26 @@ export const initiatePayment = async (req: Request, res: Response) => {
       m_payment_id: order.id,
     };
 
-    // 7️⃣ Generate PayFast signature
+    //  Generate PayFast signature
     data.signature = generateSignature(
       data,
       process.env.PAYFAST_PASSPHRASE
     );
 
-    // 8️⃣ Respond with redirect URL
+    //  Respond with redirect URL
     return res.status(200).json({
       message: "Payment initiated",
       payment_id: paymentResult.rows[0].id,
       redirect_url: `${PF_URL}?${qs.stringify(data)}`,
     });
   } catch (error) {
-    console.error("❌ PayFast Initiation Error:", error);
+    console.error(" PayFast Initiation Error:", error);
     return res.status(500).json({ message: "Payment initiation failed" });
   }
 };
 
 // ---------------------------------------------------
-// 2️⃣ PAYFAST IPN (SERVER → SERVER, HARDENED)
+//  PAYFAST IPN (SERVER → SERVER, HARDENED),payfastNotify()
 // ---------------------------------------------------
 export const payfastNotify = async (req: Request, res: Response) => {
   try {
@@ -109,28 +112,28 @@ export const payfastNotify = async (req: Request, res: Response) => {
     const payload = { ...req.body };
     const receivedSignature = payload.signature;
 
-    // 1️⃣ Required fields validation
+    // Required fields validation
     if (!payload.m_payment_id || !payload.payment_status || !receivedSignature) {
       return res.status(400).send("Invalid IPN");
     }
 
-    // 2️⃣ Remove signature before verification
+    // Remove signature before verification
     delete payload.signature;
 
-    // 3️⃣ Verify PayFast signature
+    //  Verify PayFast signature
     const calculatedSignature = generateSignature(
       payload,
       process.env.PAYFAST_PASSPHRASE
     );
 
     if (receivedSignature !== calculatedSignature) {
-      console.error("❌ Invalid PayFast signature");
+      console.error("Invalid PayFast signature");
       return res.status(400).send("Invalid signature");
     }
 
     const orderId = payload.m_payment_id;
 
-    // 4️⃣ Fetch order
+    //  Fetch order
     const orderResult = await pool.query(
       `SELECT * FROM orders WHERE id = $1`,
       [orderId]
@@ -142,20 +145,20 @@ export const payfastNotify = async (req: Request, res: Response) => {
 
     const order = orderResult.rows[0];
 
-    // 5️⃣ Validate merchant ID (protect against spoofed IPN)
+    //  Validate merchant ID (protect against spoofed IPN)
     if (payload.merchant_id !== process.env.PAYFAST_MERCHANT_ID) {
-      console.error("❌ Merchant ID mismatch");
+      console.error(" Merchant ID mismatch");
       return res.status(400).send("Invalid merchant");
     }
 
-    // 6️⃣ Validate amount (critical security check)
+    //  Validate amount (critical security check)
     const expectedAmount = (order.total_amount_cents / 100).toFixed(2);
     if (payload.amount_gross !== expectedAmount) {
-      console.error("❌ Amount mismatch", payload.amount_gross, expectedAmount);
+      console.error(" Amount mismatch", payload.amount_gross, expectedAmount);
       return res.status(400).send("Invalid amount");
     }
 
-    // 7️⃣ Fetch payment record
+    //  Fetch payment record
     const paymentResult = await pool.query(
       `
       SELECT * FROM payments
@@ -171,43 +174,102 @@ export const payfastNotify = async (req: Request, res: Response) => {
 
     const payment = paymentResult.rows[0];
 
-    // 8️⃣ Idempotency: ignore duplicate IPNs
+    // Idempotency: ignore duplicate IPNs
     if (payment.status === "paid") {
       return res.status(200).send("Already processed");
     }
 
     const status = payload.payment_status;
 
-    // 9️⃣ Handle SUCCESSFUL payment
+    //  Handle SUCCESSFUL payment
     if (status === "COMPLETE") {
-      await pool.query(
-        `
-        UPDATE payments
-        SET status = 'paid',
-            provider_reference = $2,
-            raw_notify_payload = $3,
-            updated_at = NOW()
-        WHERE id = $1
-        `,
-        [payment.id, payload.pf_payment_id, payload]
-      );
+      const client = await pool.connect();
 
-      await pool.query(
-        `
-        UPDATE orders
-        SET status = 'paid',
-            payment_provider = 'payfast',
-            payment_reference = $1,
-            updated_at = NOW()
-        WHERE id = $1
-        `,
-        [orderId]
-      );
+      try {
+        await client.query("BEGIN");
 
-      console.log("✅ Payment completed:", orderId);
+        //  Update payment
+        await client.query(
+          `
+          UPDATE payments
+          SET status = 'paid',
+              provider_reference = $2,
+              raw_notify_payload = $3,
+              updated_at = NOW()
+          WHERE id = $1
+          `,
+          [payment.id, payload.pf_payment_id, payload]
+        );
+
+        //  Update order
+        await client.query(
+          `
+          UPDATE orders
+          SET status = 'paid',
+              payment_provider = 'payfast',
+              payment_reference = $2,
+              updated_at = NOW()
+          WHERE id = $1
+          `,
+          [orderId, payload.pf_payment_id]
+        );
+
+        //  GET ORDER INFO
+        const orderResult = await client.query(
+          `
+          SELECT merchant_id, total_amount_cents
+          FROM orders
+          WHERE id = $1
+          `,
+          [orderId]
+        );
+
+        const merchantId = orderResult.rows[0].merchant_id;
+        const grossAmount = orderResult.rows[0].total_amount_cents / 100;
+
+        // CALCULATE PLATFORM FEE (10%)
+        const platformFeePercent = 0.1;
+        const platformFee = grossAmount * platformFeePercent;
+        const netAmount = grossAmount - platformFee;
+
+        // INSERT MERCHANT EARNINGS
+        await client.query(
+          `
+          INSERT INTO merchant_earnings (
+            merchant_id,
+            order_id,
+            gross_amount,
+            platform_fee,
+            net_amount,
+            status,
+            created_at
+          )
+          VALUES ($1, $2, $3, $4, $5, 'pending', NOW())
+          `,
+          [
+            merchantId,
+            orderId,
+            grossAmount,
+            platformFee,
+            netAmount
+          ]
+        );
+
+        await client.query("COMMIT");
+
+        console.log("Payment completed & earnings recorded:", orderId);
+
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      } finally {
+        client.release();
+      }
     }
 
-    // 🔟 Handle FAILED / CANCELLED payment
+
+
+    // Handle FAILED / CANCELLED payment
     if (status === "FAILED" || status === "CANCELLED") {
       await pool.query(
         `
@@ -223,13 +285,13 @@ export const payfastNotify = async (req: Request, res: Response) => {
 
     return res.status(200).send("OK");
   } catch (error) {
-    console.error("❌ PayFast IPN Error:", error);
+    console.error(" PayFast IPN Error:", error);
     return res.status(500).send("ERROR");
   }
 };
 
 // ---------------------------------------------------
-// 3️⃣ PAYFAST REDIRECT URLS (User-facing)
+// PAYFAST REDIRECT URLS (User-facing)
 // ---------------------------------------------------
 export const payfastSuccess = (_: Request, res: Response) =>
   res.send("Payment successful");

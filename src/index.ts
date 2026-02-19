@@ -3,10 +3,12 @@ import cors from 'cors';
 import userRoutes from './routes/userRoutes';
 import customerRoutes from './routes/customerRoutes';
 import merchantRoutes from './routes/merchantRoutes';
-import merchantEventRoutes from "./routes/merchantEventRoutes";
+import merchantEventRoutes from './routes/merchantEventRoutes';
+import eventRoutes from './routes/eventRoutes';
 import ticketRoutes from './routes/ticketRoutes';
 import orderRoutes from './routes/orderRoutes';
 import payfastRoutes from './routes/payfastRoutes';
+
 
 // import refundRoutes from './routes/refundRoutes';
 
@@ -29,6 +31,7 @@ app.use('/api/customer', customerRoutes);
 app.use('/api/merchants', merchantRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use("/api/merchant", merchantEventRoutes);
+app.use("/api/events", eventRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payfast', payfastRoutes);

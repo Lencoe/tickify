@@ -22,26 +22,46 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     let total_amount_cents = 0;
     let merchant_id: string | null = null;
 
-    // 🔍 Validate tickets & calculate totals
+    // 🔍 Validate tickets & calculate totals (LOCK rows)
     for (const item of items) {
       const { ticket_type_id, quantity } = item;
 
       const ticketRes = await client.query(
         `
-        SELECT tt.price_cents, tt.available_quantity, e.merchant_id
+        SELECT
+          tt.price_cents,
+          tt.available_quantity,
+          tt.sales_start,
+          tt.sales_end,
+          e.merchant_id,
+          e.status,
+          e.start_datetime
         FROM ticket_types tt
         JOIN events e ON tt.event_id = e.id
         WHERE tt.id = $1
+          AND e.status = 'published'
+          AND e.start_datetime > NOW()
+        FOR UPDATE
         `,
         [ticket_type_id]
       );
 
       if (ticketRes.rows.length === 0) {
-        throw new Error("Ticket type not found");
+        throw new Error("Event is not published or ticket not found");
       }
 
       const ticket = ticketRes.rows[0];
 
+      // ⏰ Sales window check
+      const now = new Date();
+      if (
+        (ticket.sales_start && now < ticket.sales_start) ||
+        (ticket.sales_end && now > ticket.sales_end)
+      ) {
+        throw new Error("Ticket sales are not active");
+      }
+
+      // 🎟 Availability check
       if (ticket.available_quantity < quantity) {
         throw new Error("Not enough tickets available");
       }
@@ -84,7 +104,8 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       await client.query(
         `
         UPDATE ticket_types
-        SET available_quantity = available_quantity - $1
+        SET available_quantity = available_quantity - $1,
+            updated_at = NOW()
         WHERE id = $2
         `,
         [quantity, ticket_type_id]
@@ -105,6 +126,8 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     client.release();
   }
 };
+
+
 
 // ------------------------------------------
 // 🟨 Get a specific order by ID
@@ -218,3 +241,108 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
     res.status(500).json({ message: "Failed to update order status" });
   }
 };
+
+
+// ------------------------------------------
+// 🟥 Cancel order (Customer or Merchant)
+// ------------------------------------------
+export const cancelOrder = async (req: Request, res: Response): Promise<void> => {
+  const client = await pool.connect();
+
+  try {
+    const { id: orderId } = req.params;
+    const user = req.user!;
+
+    await client.query("BEGIN");
+
+    // 🔒 Lock order row
+    const orderRes = await client.query(
+      `
+      SELECT *
+      FROM orders
+      WHERE id = $1
+      FOR UPDATE
+      `,
+      [orderId]
+    );
+
+    if (orderRes.rows.length === 0) {
+      await client.query("ROLLBACK");
+      res.status(404).json({ message: "Order not found" });
+      return;
+    }
+
+    const order = orderRes.rows[0];
+
+    // 🔐 Authorization
+    if (
+      (user.role === "customer" && order.customer_id !== user.id) ||
+      (user.role === "merchant" && order.merchant_id !== user.id)
+    ) {
+      await client.query("ROLLBACK");
+      res.status(403).json({ message: "Unauthorized to cancel this order" });
+      return;
+    }
+
+    //  Status rules
+    if (order.status !== "pending") {
+      await client.query("ROLLBACK");
+      res.status(400).json({
+        message: `Cannot cancel an order with status '${order.status}'`,
+      });
+      return;
+    }
+
+    // 🔄 Restore ticket stock
+    const itemsRes = await client.query(
+      `
+      SELECT ticket_type_id, quantity
+      FROM order_items
+      WHERE order_id = $1
+      `,
+      [orderId]
+    );
+
+    for (const item of itemsRes.rows) {
+      await client.query(
+        `
+        UPDATE ticket_types
+        SET available_quantity = available_quantity + $1,
+            updated_at = NOW()
+        WHERE id = $2
+        `,
+        [item.quantity, item.ticket_type_id]
+      );
+    }
+
+    // Cancel order
+    const { rows } = await client.query(
+      `
+      UPDATE orders
+      SET status = 'cancelled',
+          updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+      `,
+      [orderId]
+    );
+
+    await client.query("COMMIT");
+
+    res.status(200).json({
+      message: "Order cancelled successfully",
+      order: rows[0],
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("❌ Error cancelling order:", error);
+    res.status(500).json({ message: "Failed to cancel order" });
+  } finally {
+    client.release();
+  }
+};
+
+
+
+
+

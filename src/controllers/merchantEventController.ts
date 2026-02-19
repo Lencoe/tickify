@@ -87,6 +87,53 @@ export const updateEvent = async (req: Request, res: Response) => {
   }
 };
 
+// ✅ 2️⃣ Publish event (draft → published)
+export const publishEvent = async (req: Request, res: Response) => {
+  const merchantId = req.user?.id;
+  const eventId = req.params.id;
+
+  try {
+    // Check ownership + status
+    const eventCheck = await pool.query(
+      `SELECT * FROM events WHERE id=$1 AND merchant_id=$2`,
+      [eventId, merchantId]
+    );
+
+    if (eventCheck.rows.length === 0) {
+      return res.status(404).json({ message: "Event not found or unauthorized" });
+    }
+
+    const event = eventCheck.rows[0];
+
+    if (event.status !== "draft") {
+      return res.status(400).json({
+        message: "Only draft events can be published",
+      });
+    }
+
+    const result = await pool.query(
+      `
+      UPDATE events
+      SET status = 'published',
+          published_at = NOW(),
+          updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+      `,
+      [eventId]
+    );
+
+    res.status(200).json({
+      message: "Event published successfully",
+      event: result.rows[0],
+    });
+  } catch (err) {
+    console.error("Error publishing event:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 // ✅ 3. Cancel event
 export const cancelEvent = async (req: Request, res: Response) => {
   const merchantId = req.user?.id;

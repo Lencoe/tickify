@@ -7,6 +7,7 @@ import {
   cancelEvent,
   getEvents,
   getEventReports,
+  publishEvent,
 } from "../controllers/merchantEventController";
 
 const router = express.Router();
@@ -17,8 +18,10 @@ router.use(authenticateJWT, requireRole("merchant"));
 // Event CRUD
 router.post("/events", createEvent);
 router.put("/events/:id", updateEvent);
+router.patch("/events/:id/publish", publishEvent);
 router.delete("/events/:id", cancelEvent);
 router.get("/events", getEvents);
+
 
 // Reports
 router.get("/events/:id/reports", getEventReports);

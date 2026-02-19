@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { TicketTypeModel } from '../models/TicketType';
 
-// ✅ Create a new ticket type (Merchant only)
+// Create a new ticket type (Merchant only)
 export const createTicketType = async (req: Request, res: Response) => {
   try {
     const { event_id, name, price_cents, total_quantity, sales_start, sales_end } = req.body;
@@ -22,12 +22,12 @@ export const createTicketType = async (req: Request, res: Response) => {
 
     return res.status(201).json({ message: 'Ticket type created successfully', ticket: newTicket });
   } catch (err) {
-    console.error('❌ Error creating ticket:', err);
+    console.error(' Error creating ticket:', err);
     return res.status(500).json({ message: 'Failed to create ticket type' });
   }
 };
 
-// ✅ Get all ticket types for a specific event (Public)
+//  Get all ticket types for a specific event (Public)
 export const getTicketsByEvent = async (req: Request, res: Response) => {
   try {
     const { eventId } = req.params;
@@ -40,12 +40,12 @@ export const getTicketsByEvent = async (req: Request, res: Response) => {
 
     return res.status(200).json({ tickets });
   } catch (err) {
-    console.error('❌ Error fetching tickets:', err);
+    console.error(' Error fetching tickets:', err);
     return res.status(500).json({ message: 'Failed to fetch tickets' });
   }
 };
 
-// ✅ Update ticket details (Merchant only)
+//  Update ticket details (Merchant only)
 export const updateTicketType = async (req: Request, res: Response) => {
   try {
     const { ticketId } = req.params;
@@ -59,9 +59,9 @@ export const updateTicketType = async (req: Request, res: Response) => {
 
     return res.status(200).json({ message: 'Ticket updated successfully', ticket: updatedTicket });
   } catch (err: any) {
-    console.error('❌ Error updating ticket:', err);
+    console.error(' Error updating ticket:', err);
     
-    // Check if it's an unknown field error from the model
+    // Check if it' s an unknown field error from the model
     if (err.message && err.message.includes('Unknown fields')) {
       return res.status(400).json({ message: err.message });
     }
@@ -70,7 +70,7 @@ export const updateTicketType = async (req: Request, res: Response) => {
   }
 };
 
-// ✅ Delete a ticket type (Merchant only)
+//  Delete a ticket type (Merchant only)
 export const deleteTicketType = async (req: Request, res: Response) => {
   try {
     const { ticketId } = req.params;
@@ -83,7 +83,7 @@ export const deleteTicketType = async (req: Request, res: Response) => {
 
     return res.status(200).json({ message: 'Ticket deleted successfully', ticket: deletedTicket });
   } catch (err) {
-    console.error('❌ Error deleting ticket:', err);
+    console.error(' Error deleting ticket:', err);
     return res.status(500).json({ message: 'Failed to delete ticket type' });
   }
 };

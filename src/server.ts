@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-
+import { cleanupExpiredOrders } from "./services/orderCleanupService";
 import { Server } from 'http';
 import pool from './config/db';
 import app from './index';
@@ -44,12 +44,12 @@ async function shutdown(signal: string) {
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
+  console.error(' Uncaught Exception:', error);
   shutdown('UNCAUGHT_EXCEPTION').catch(console.error);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error(' Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 // Shutdown signals
@@ -59,15 +59,22 @@ process.on('SIGINT', () => shutdown('SIGINT').catch(console.error));
 (async () => {
   try {
     await pool.connect();
-    console.log('✅ Connected to PostgreSQL');
+    console.log(' Connected to PostgreSQL');
 
     server = app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+      console.log(` Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+
+      // Start cleanup job
+      setInterval(async () => {
+        await cleanupExpiredOrders();
+      }, 60000); // every 60 seconds
+
+      console.log("🧹 Order cleanup scheduler started");
     });
 
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error('❌ Failed to connect to DB:', message);
+    console.error(' Failed to connect to DB:', message);
     process.exit(1);
   }
 })();
