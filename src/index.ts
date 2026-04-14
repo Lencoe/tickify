@@ -30,7 +30,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/customer', customerRoutes);
 app.use('/api/merchants', merchantRoutes);
 app.use('/uploads', express.static('uploads'));
-app.use("/api/merchant", merchantEventRoutes);
+app.use("/api/merchants", merchantEventRoutes);
 app.use("/api/events", eventRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/orders', orderRoutes);

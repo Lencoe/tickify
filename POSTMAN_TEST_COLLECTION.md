@@ -174,7 +174,7 @@ http://localhost:3000
 - **Body (Raw JSON):**
   ```json
   {
-    "status": "approved"
+    "status": "verified"
   }
   ```
 - **Expected Response (200):**
@@ -649,55 +649,3 @@ http://localhost:3000
 - PATCH `/api/orders/{id}/status`
 
 ---
-
-## Testing Tips
-
-1. **Save Tokens:** After login, copy the JWT token and paste it in the Authorization header for authenticated routes
-2. **Environment Variables in Postman:** Create an environment with `token`, `merchant_id`, `event_id`, `ticket_id`, `order_id` variables
-3. **Test Order:** Always register/login first before testing protected routes
-4. **File Upload:** Make sure to use "Form-data" in Postman for merchant registration (not JSON)
-5. **Timestamps:** Use ISO 8601 format for dates (e.g., `2025-06-15T18:00:00Z`)
-6. **Prices:** All prices are in cents (e.g., R 500 = 50000 cents)
-
----
-
-## Duplicate & Validation Tests
-
-These tests exercise the DB-level constraints and application validation derived from your schema.
-
-### A. Duplicate Email (users.email UNIQUE)
-- **Method:** POST
-- **URL:** `/api/users/register`
-- **Body:** same email as an existing user
-- **Expected:** 400 with message `User already exists` or a 400 mapping of Postgres unique_violation (code 23505).
-
-### B. Duplicate ID Number (users.id_number unique if enforced)
-- **Method:** POST
-- **URL:** `/api/users/register`
-- **Body:** different email but same `id_number` as an existing user
-- **Expected:** 400 with message `ID number already used` (if application-level check) or 400/409 if DB constraint exists.
-
-### C. Duplicate Business Registration Number (merchants.business_registration_number)
-- **Method:** POST
-- **URL:** `/api/merchants/register`
-- **Body:** new merchant with same `business_registration_number` as existing merchant
-- **Expected:** 400 with message `Business registration number already used` or DB unique violation mapping.
-
-### D. Missing Required Merchant Documents
-- **Method:** POST
-- **URL:** `/api/merchants/register`
-- **Body:** omit `id_document` or `cipc_document` files in form-data
-- **Expected:** 400 with message indicating required documents are missing (if server validates), or registration proceeds but admin rejects during verification.
-
-### E. Merchant Login Before Verification
-- **Method:** POST
-- **URL:** `/api/users/login`
-- **Body:** merchant credentials for a user whose `merchants.status` = `pending` or `users.is_verified` = false
-- **Expected:** 403/401 with message `Merchant not verified` or `Account not verified`.
-
-### F. Concurrent Registrations (race)
-- Simulate two clients registering the same email/id_number at the same time. The DB unique constraint must prevent duplicates; the second request should fail with unique_violation (23505).
-
----
-
-If you want, I can also add example Postman tests (pre-request scripts and tests) that automatically assert HTTP status codes and save returned IDs/tokens into environment variables.
