@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Buyer Account</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fff;
+      color: #000;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .form-section {
+      background: #f9f9f9;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 2rem auto;
+      max-width: 600px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-label {
+      font-weight: 600;
+    }
+
+    input, select {
+      background-color: #fff !important;
+      border: 1px solid #ddd !important;
+      color: #000 !important;
+      transition: border-color 0.3s ease;
+    }
+
+    input:hover, input:focus, select:hover, select:focus {
+      border-color: #ff6600 !important;
+      box-shadow: none;
+    }
+
+    input::placeholder {
+      color: #888 !important;
+    }
+
+    .btn-primary {
+      background-color: #ff6600;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #000;
+      color: #fff;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 2rem;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Create Your Buyer Account</h2>
+    <form class="form-section" id="buyerForm">
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-control" placeholder="John Doe" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-control" placeholder="john@example.com" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" class="form-control" placeholder="e.g. 0712345678" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">ID or Passport Number</label>
+        <input type="text" class="form-control" placeholder="e.g. 8801011234085" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">City or Town</label>
+        <input type="text" class="form-control" placeholder="Cape Town">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Gender</label>
+        <select class="form-select">
+          <option value="" disabled selected>Select gender</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Create Password</label>
+        <input type="password" class="form-control" placeholder="Enter password" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Confirm Password</label>
+        <input type="password" class="form-control" placeholder="Re-enter password" required>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary px-4 py-2">Create Account</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("buyerForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      alert("Account created successfully!");
+      // Hook into backend logic here
+    });
+  </script>
+
+
+<!-- Footer -->
+<footer class="footer bg-dark text-white py-5">
+  <div class="container">
+    <div class="row">
+      <!-- Help & Info -->
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold mb-3 text-start">Help & Info</h5>
+        <ul class="list-unstyled text-start">
+             <li><a href="/index.html/index.html" class="text-white text-decoration-none d-block">Home</a></li>
+          <li><a href="../pages/faq.html/faq.html" class="text-white text-decoration-none d-block">FAQ</a></li>
+          <li><a href="../pages/popia.html/popia.html" class="text-white text-decoration-none d-block">POPIA</a></li>
+          <li><a href="../pages/privacy.html/privacy.html" class="text-white text-decoration-none d-block">Terms & Privacy</a></li>
+          <li><a href="/pages/event-listing.html/list-your-event.html" class="text-white text-decoration-none d-block">List Your Event</a></li>
+        </ul>
+      </div>
+
+      <!-- Accounts & Support -->
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold mb-3 text-start">Accounts & Support</h5>
+        <ul class="list-unstyled text-start">
+             <li><a href="#" class="text-white text-decoration-none d-block">Contact</a></li>
+           <li><a href="#" class="text-white text-decoration-none d-block">Support</a></li>
+          <li><a href="#" class="text-white text-decoration-none d-block">My Profile</a></li>
+          <li><a href="#" class="text-white text-decoration-none d-block">My Tickets</a></li>
+          <li><a href="#" class="text-white text-decoration-none d-block">Create Account</a></li>
+        </ul>
+      </div>
+
+      <!-- Socials -->
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold mb-3 text-start">Socials</h5>
+        <div class="d-flex gap-3 text-start">
+          <a href="#" class="text-white fs-4"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="text-white fs-4"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="text-white fs-4"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="text-white fs-4"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+    </div>
+    <hr class="border-light">
+    <p class="text-center small mb-0">&copy; 2025 Tickify. All rights reserved.</p>
+  </div>
+</footer>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+
+</html>

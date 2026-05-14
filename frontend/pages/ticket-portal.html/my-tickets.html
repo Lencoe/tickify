@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Tickets</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fff;
+      color: #000;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .container {
+      margin-top: 3rem;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .ticket-card {
+      border: 1px solid #ddd;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      background: #f9f9f9;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .ticket-header {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-action {
+      margin-right: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: #ff6600;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #000;
+      color: #fff;
+    }
+
+    .btn-outline-secondary:hover {
+      background-color: #ff6600;
+      color: #fff;
+      border-color: #ff6600;
+    }
+
+    .modal-header {
+      background-color: #ff6600;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>My Tickets</h2>
+
+    <!-- Ticket card -->
+    <div class="ticket-card" data-ticket-id="TCK123456">
+      <div class="ticket-header">Ticket ID: #TCK123456</div>
+      <p><strong>Event:</strong> Jazz Night Live</p>
+      <p><strong>Date:</strong> 14 July 2025</p>
+      <p><strong>Venue:</strong> Cape Town Jazz Club</p>
+      <p><strong>Name on Ticket:</strong> <span class="ticket-name">Thabo Mokoena</span></p>
+      <p><strong>ID Number:</strong> <span class="ticket-id-number">8001011234089</span></p>
+      <p><strong>Email:</strong> <span class="ticket-email">thabo@example.com</span></p>
+      <p><strong>Phone:</strong> <span class="ticket-phone">+27 82 123 4567</span></p>
+      <p><strong>Delivery Address:</strong> <span class="ticket-address">123 Main St, Cape Town</span></p>
+      <p><strong>Status:</strong> Confirmed</p>
+      <div>
+        <button class="btn btn-primary btn-action" data-bs-toggle="modal" data-bs-target="#reprintModal">Reprint</button>
+        <button class="btn btn-outline-secondary btn-action" data-bs-toggle="modal" data-bs-target="#editModal">Edit Info</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel">Edit Ticket Info</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editTicketForm">
+            <div class="mb-3">
+              <label for="editName" class="form-label">Name on Ticket</label>
+              <input type="text" class="form-control" id="editName" required>
+            </div>
+            <div class="mb-3">
+              <label for="editID" class="form-label">ID Number</label>
+              <input type="text" class="form-control" id="editID" required>
+            </div>
+            <div class="mb-3">
+              <label for="editEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="editEmail" required>
+            </div>
+            <div class="mb-3">
+              <label for="editPhone" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="editPhone" required>
+            </div>
+            <div class="mb-3">
+              <label for="editAddress" class="form-label">Delivery Address</label>
+              <textarea class="form-control" id="editAddress" rows="2" required></textarea>
+            </div>
+            <input type="hidden" id="currentTicketId" value="TCK123456" />
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reprint Modal -->
+  <div class="modal fade" id="reprintModal" tabindex="-1" aria-labelledby="reprintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reprintModalLabel">Ticket Preview</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="ticketPreview" class="p-3 border">
+            <h4>Jazz Night Live</h4>
+            <p><strong>Date:</strong> 14 July 2025</p>
+            <p><strong>Venue:</strong> Cape Town Jazz Club</p>
+            <p><strong>Name:</strong> <span class="ticket-name">Thabo Mokoena</span></p>
+            <p><strong>ID:</strong> <span class="ticket-id-number">8001011234089</span></p>
+            <p><strong>Email:</strong> <span class="ticket-email">thabo@example.com</span></p>
+            <p><strong>Phone:</strong> <span class="ticket-phone">+27 82 123 4567</span></p>
+            <p><strong>Delivery Address:</strong> <span class="ticket-address">123 Main St, Cape Town</span></p>
+            <p><strong>Ticket No:</strong> #TCK123456</p>
+          </div>
+          <button class="btn btn-primary mt-3" onclick="window.print()">Print Ticket</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const editForm = document.getElementById('editTicketForm');
+
+    const nameInput = document.getElementById('editName');
+    const idInput = document.getElementById('editID');
+    const emailInput = document.getElementById('editEmail');
+    const phoneInput = document.getElementById('editPhone');
+    const addressInput = document.getElementById('editAddress');
+
+    const ticketNameSpan = document.querySelector('.ticket-name');
+    const ticketIdSpan = document.querySelector('.ticket-id-number');
+    const ticketEmailSpan = document.querySelector('.ticket-email');
+    const ticketPhoneSpan = document.querySelector('.ticket-phone');
+    const ticketAddressSpan = document.querySelector('.ticket-address');
+
+    // Pre-fill modal when opened
+    document.getElementById('editModal').addEventListener('show.bs.modal', () => {
+      nameInput.value = ticketNameSpan.textContent;
+      idInput.value = ticketIdSpan.textContent;
+      emailInput.value = ticketEmailSpan.textContent;
+      phoneInput.value = ticketPhoneSpan.textContent;
+      addressInput.value = ticketAddressSpan.textContent;
+    });
+
+    // Update ticket info when form is submitted
+    editForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      ticketNameSpan.textContent = nameInput.value;
+      ticketIdSpan.textContent = idInput.value;
+      ticketEmailSpan.textContent = emailInput.value;
+      ticketPhoneSpan.textContent = phoneInput.value;
+      ticketAddressSpan.textContent = addressInput.value;
+
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+      modal.hide();
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

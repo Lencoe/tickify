@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tickify | Your Ticketing Partner</title>
+
+  <!-- Bootstrap, Fonts, Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: #333;
+      margin: 0;
+    }
+    .navbar {
+      background-color: #ff6600;
+    }
+    .navbar-brand, .nav-link, .btn-outline-light {
+      color: white;
+    }
+    .btn-outline-light:hover {
+      background-color: white;
+      color: #ff6600;
+    }
+    .hero {
+      padding: 0;
+      background-color: #000;
+      margin-bottom: 0;
+      background: url('../assets/images/crowd11.webp') center center / cover no-repeat;
+      min-height: 100vh;
+    }
+    .hero {
+      min-height: 60vh;
+    }
+    .hero .container {
+      height: 60vh;
+    }
+    .features, .events {
+      padding: 60px 0;
+    }
+    .feature-card, .event-card {
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      transition: 0.3s ease-in-out;
+    }
+    .feature-card:hover, .event-card:hover {
+      transform: translateY(-5px);
+    }
+    .feature-icon {
+      font-size: 2rem;
+      color: #ff6600;
+      margin-bottom: 15px;
+    }
+    .footer {
+      background-color: #f8f9fa;
+      padding: 30px 0;
+      text-align: center;
+      color: #666;
+    }
+    .btn-orange {
+      background-color: #ff6600;
+      color: white;
+      border-radius: 8px;
+    }
+    .btn-orange:hover {
+      background-color: #e65c00;
+      color: white;
+    }
+    .text-orange {
+      color: #ff6600;
+    }
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+    .event-category .extra-events {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- (Navbar and Hero stay the same) -->
+
+<!-- Events Section with Categories -->
+<section id="events" class="events bg-light">
+  <div class="container">
+    <div class="row text-center mb-5">
+      <div class="col">
+        <h2 class="fw-bold">Upcoming Events</h2>
+        <p class="text-muted">Browse the hottest events happening near you</p>
+      </div>
+    </div>
+
+    <!-- Example Category: Music Events -->
+    <div class="event-category mb-5">
+      <h4 class="fw-bold text-orange">Music & Festivals</h4>
+      <div class="row g-4">
+        <div class="col-md-4">...</div>
+        <div class="col-md-4">...</div>
+        <div class="col-md-4">...</div>
+        <div class="col-md-4 extra-events">...</div>
+        <div class="col-md-4 extra-events">...</div>
+      </div>
+      <div class="text-center mt-3">
+        <button class="btn btn-outline-secondary toggle-btn" data-target="music">Show More</button>
+      </div>
+    </div>
+
+    <!-- Example Category: Business & Tech -->
+    <div class="event-category mb-5">
+      <h4 class="fw-bold text-orange">Business & Tech</h4>
+      <div class="row g-4">
+        <div class="col-md-4">...</div>
+        <div class="col-md-4">...</div>
+        <div class="col-md-4">...</div>
+        <div class="col-md-4 extra-events">...</div>
+        <div class="col-md-4 extra-events">...</div>
+      </div>
+      <div class="text-center mt-3">
+        <button class="btn btn-outline-secondary toggle-btn" data-target="business">Show More</button>
+      </div>
+    </div>
+
+    <!-- You can add more categories in the same pattern -->
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.toggle-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const category = button.closest('.event-category');
+      const hiddenCards = category.querySelectorAll('.extra-events');
+      const isHidden = hiddenCards[0].style.display === 'none';
+
+      hiddenCards.forEach(card => {
+        card.style.display = isHidden ? 'block' : 'none';
+      });
+
+      button.textContent = isHidden ? 'Show Less' : 'Show More';
+    });
+  });
+</script>
+
+</body>
+</html>

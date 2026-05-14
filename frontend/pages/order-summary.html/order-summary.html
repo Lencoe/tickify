@@ -1,0 +1,170 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+  body {
+    background-color: #f9f9f9;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .order-card {
+    width: 100%;
+    max-width: 520px;
+    background-color: #fff;
+    border: 1px solid #f97316;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+  }
+
+  .section-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 28px;
+    color: #333;
+  }
+
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    font-size: 17px;
+    color: #444;
+  }
+
+  .order-total {
+    font-weight: 700;
+    font-size: 18px;
+    border-top: 1px dashed #f97316;
+    padding-top: 18px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    color: #222;
+  }
+
+  .payment-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 30px;
+    margin-bottom: 16px;
+    color: #333;
+  }
+
+  .form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+
+  .form-check-input {
+    margin: 0;
+    transform: scale(1.2);
+  }
+
+  .form-check-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+  }
+
+  .form-check-label i {
+    font-size: 18px;
+  }
+
+  .fa-credit-card {
+    color: #3b82f6;
+  }
+
+  .fa-building-columns {
+    color: #10b981;
+  }
+
+  .fa-wallet {
+    color: #f59e0b;
+  }
+
+  .btn-pay {
+    background-color: #f97316;
+    color: white;
+    font-weight: 600;
+    border-radius: 10px;
+    border: none;
+    transition: background 0.3s ease;
+    padding: 14px;
+    font-size: 16px;
+    margin-top: 30px;
+  }
+
+  .btn-pay:hover {
+    background-color: #000;
+    color: #fff;
+  }
+</style>
+
+<div class="order-card text-start">
+  <div class="section-title">Order Summary</div>
+
+  <!-- Items -->
+  <div class="order-item">
+  <span id="ticket-name"></span>
+  <span id="ticket-price"></span>
+</div>
+
+<div class="order-total">
+  <span>Total</span>
+  <span id="ticket-total"></span>
+</div>
+
+  <!-- Payment Options -->
+  <div class="payment-title">Payment Method</div>
+  <div class="payment-method">
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="payment" id="card" checked>
+      <label class="form-check-label" for="card">
+        <i class="fas fa-credit-card"></i> Credit / Debit Card
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="payment" id="eft">
+      <label class="form-check-label" for="eft">
+        <i class="fas fa-building-columns"></i> EFT
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="payment" id="wallet">
+      <label class="form-check-label" for="wallet">
+        <i class="fas fa-wallet"></i> Wallet
+      </label>
+    </div>
+  </div>
+
+  <!-- Pay Button -->
+  <button class="btn w-100 btn-pay">Proceed to Pay</button>
+</div>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const ticketData = JSON.parse(localStorage.getItem('selectedTicket'));
+    if (ticketData) {
+      document.getElementById('ticket-name').textContent = ticketData.name;
+      document.getElementById('ticket-price').textContent = 'R' + ticketData.price;
+      document.getElementById('ticket-total').textContent = 'R' + ticketData.price;
+    } else {
+      document.getElementById('ticket-name').textContent = 'No ticket selected';
+      document.getElementById('ticket-price').textContent = '-';
+      document.getElementById('ticket-total').textContent = '-';
+    }
+  });
+</script>
+

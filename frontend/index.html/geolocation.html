@@ -1,0 +1,52 @@
+<div class="card event-card p-3" data-city="Soweto">
+  <img src="../assets/images/gospel1.jpg" class="card-img-top rounded" alt="Gospel Event">
+  <div class="card-body">
+    <h5 class="card-title fw-bold">Praise Explosion Night</h5>
+    <p class="card-text text-muted">Soweto • 10 August 2025</p>
+    <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+  </div>
+</div>
+
+
+<script>
+  // Call this function when you want to filter events by geolocation
+  function filterEventsByUserCity() {
+    if (!navigator.geolocation) {
+      alert("Geolocation not supported");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async position => {
+      const { latitude, longitude } = position.coords;
+
+      // Reverse geocode to get city using OpenStreetMap
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+      const data = await response.json();
+      const userCity = data.address.city || data.address.town || data.address.village || data.address.county;
+
+      if (!userCity) {
+        alert("Could not determine your city.");
+        return;
+      }
+
+      // Show only matching event cards
+      document.querySelectorAll('.card.event-card').forEach(card => {
+        const eventCity = card.getAttribute('data-city');
+        if (eventCity && eventCity.toLowerCase() === userCity.toLowerCase()) {
+          card.closest('.col-md-4').style.display = '';
+        } else {
+          card.closest('.col-md-4').style.display = 'none';
+        }
+      });
+
+    }, error => {
+      alert("Unable to get location: " + error.message);
+    });
+  }
+
+  // Optional: Automatically filter when page loads
+  window.addEventListener('DOMContentLoaded', () => {
+    filterEventsByUserCity();
+  });
+
+</script>

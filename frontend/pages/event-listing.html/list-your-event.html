@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>List Your Event</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fff;
+      color: #000;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .form-section {
+      background: #f9f9f9;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-label {
+      font-weight: 600;
+    }
+
+    input, textarea, select {
+      background-color: #fff !important;
+      border: 1px solid #ddd !important;
+      color: #000 !important;
+      transition: border-color 0.3s ease;
+    }
+
+    input:hover, textarea:hover, select:hover, input:focus, textarea:focus, select:focus {
+      border-color: #ff6600 !important;
+      box-shadow: none;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #888 !important;
+    }
+
+    .btn-primary {
+      background-color: #ff6600;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #000;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background-color: #fff;
+      color: #ff6600;
+      border: 1px solid #ff6600;
+    }
+
+    .btn-secondary:hover {
+      background-color: #000;
+      color: #fff;
+    }
+
+    h2, h4 {
+      color: #000;
+    }
+
+    .navbar {
+      background-color: #ff6600;
+    }
+
+    .navbar-brand, .nav-link, .btn-outline-light {
+      color: white;
+    }
+
+    .btn-outline-light:hover {
+      background-color: white;
+      color: #ff6600;
+    }
+
+    .tab-content {
+      margin-top: 2rem;
+    }
+
+    .nav-tabs .nav-link.active {
+      background-color: #ff6600;
+      color: white;
+    }
+
+    .nav-tabs .nav-link {
+      color: #ff6600;
+    }
+
+    .nav-tabs .nav-link:hover {
+      color: #000;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: hue-rotate(25deg) saturate(5);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg shadow-sm mb-0">
+  <div class="container">
+    <a class="navbar-brand fw-bold me-auto" href="/index.html/index.html">TICKIFY</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav align-items-center">
+        <li class="nav-item"><a class="nav-link px-2" href="#features">Tickets</a></li>
+        <li class="nav-item"><a class="nav-link px-2" href="#">Travel</a></li>
+        <li class="nav-item"><a class="nav-link px-2" href="#events">Browse Events</a></li>
+        <li class="nav-item"><a class="nav-link px-2" href="#signup">List Event</a></li>
+        <li class="nav-item d-flex">
+          <a class="btn btn-outline-light px-3 py-1" href="#signup">Create Account</a>
+          <a class="btn btn-outline-light px-3 py-1 ms-2" href="#login">Log In</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-5">
+  <h2 class="text-left mb-4">Merchant Access</h2>
+
+  <ul class="nav nav-tabs justify-content-leftr" id="authTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button">Sign Up</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button">Login</button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="authTabsContent">
+    <!-- Sign Up -->
+    <div class="tab-pane fade show active" id="signup" role="tabpanel">
+      <form id="eventForm">
+        <div class="form-section">
+          <h4>Account Details</h4>
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" placeholder="John Doe" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" placeholder="john@example.com" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" placeholder="Enter password" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" placeholder="Re-enter password" required>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>Event Details</h4>
+          <div class="mb-3">
+            <label class="form-label">Event Name</label>
+            <input type="text" class="form-control" placeholder="Spring Music Fest" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Venue</label>
+            <input type="text" class="form-control" placeholder="Johannesburg Stadium" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" rows="4" placeholder="What is the event about?" required></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h4>Ticket Categories</h4>
+          <div id="ticketContainer">
+            <div class="row g-2 ticket-row">
+              <div class="col-md-4">
+                <input type="text" class="form-control" placeholder="Category (e.g. VIP)" name="ticketCategory[]">
+              </div>
+              <div class="col-md-4">
+                <input type="number" class="form-control" placeholder="Price (ZAR)" name="ticketPrice[]">
+              </div>
+              <div class="col-md-4">
+                <input type="number" class="form-control" placeholder="Quantity" name="ticketQuantity[]">
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary mt-3" onclick="addTicketRow()">Add Another Ticket</button>
+        </div>
+
+        <div class="form-section">
+          <h4>Upload Poster</h4>
+          <input class="form-control" type="file" accept="image/*">
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary px-5 py-2">Submit Event</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Login -->
+    <div class="tab-pane fade" id="login" role="tabpanel">
+      <form class="form-section mt-3">
+        <h4>Login</h4>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" placeholder="john@example.com" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" placeholder="Enter your password" required>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary px-4 py-2">Log In</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function addTicketRow() {
+    const container = document.getElementById("ticketContainer");
+    const row = document.createElement("div");
+    row.classList.add("row", "g-2", "ticket-row", "mt-2");
+    row.innerHTML = `
+      <div class="col-md-4">
+        <input type="text" class="form-control" placeholder="Category (e.g. General)" name="ticketCategory[]">
+      </div>
+      <div class="col-md-4">
+        <input type="number" class="form-control" placeholder="Price (ZAR)" name="ticketPrice[]">
+      </div>
+      <div class="col-md-4">
+        <input type="number" class="form-control" placeholder="Quantity" name="ticketQuantity[]">
+      </div>
+    `;
+    container.appendChild(row);
+  }
+
+  document.getElementById("eventForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    alert("Event submitted successfully!");
+    // You can hook backend logic here.
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

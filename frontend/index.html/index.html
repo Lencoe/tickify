@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tickify | Your Ticketing Partner</title>
+
+  <!-- Bootstrap, Fonts, Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: #333;
+      margin: 0;
+    }
+    .navbar {
+      background-color: #ff6600;
+    }
+    .navbar-brand, .nav-link, .btn-outline-light {
+      color: white;
+    }
+    .btn-outline-light:hover {
+      background-color: white;
+      color: #ff6600;
+    }
+    .hero {
+      padding: 0;
+      background-color: #000;
+      margin-bottom: 0;
+      background: url('../assets/images/istockphoto-1486813721-612x612.jpg') center center / cover no-repeat;
+      min-height: 100vh;
+    }
+   .hero {
+  min-height: 60vh;
+}
+.hero .container {
+  height: 60vh;
+}
+
+    .features, .events {
+      padding: 60px 0;
+    }
+    .feature-card, .event-card {
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      transition: 0.3s ease-in-out;
+    }
+    .feature-card:hover, .event-card:hover {
+      transform: translateY(-5px);
+    }
+    .feature-icon {
+      font-size: 2rem;
+      color: #ff6600;
+      margin-bottom: 15px;
+    }
+    .footer {
+      background-color: #f8f9fa;
+      padding: 30px 0;
+      text-align: center;
+      color: #666;
+    }
+    .btn-orange {
+      background-color: #ff6600;
+      color: white;
+      border-radius: 8px;
+    }
+    .btn-orange:hover {
+      background-color: #e65c00;
+      color: white;
+    }
+    .text-orange {
+      color: #ff6600;
+    }
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.g'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+    
+    
+  </style>
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg shadow-sm mb-0">
+  <div class="container">
+    <a class="navbar-brand fw-bold me-auto" href="#">TICKIFY</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav align-items-center">
+        <li class="nav-item"><a class="nav-link px-2" href="#features">Tickets</a></li>
+        <li class="nav-item"><a class="nav-link px-2" href="/pages/travel.html/travel.html">Travel</a></li>
+        <li class="nav-item"><a class="nav-link px-2" href="#events">Browse Events</a></li>
+        <li class="nav-item"><a class="nav-link px-2" href="/pages/event-listing.html/list-your-event.html">List Event</a></li>
+        <li class="nav-item d-flex">
+          <a class="btn btn-outline-light px-3 py-1" href="/pages/create-account.html/create-account.html">Create Account</a>
+          <a class="btn btn-outline-light px-3 py-1 ms-2" href="/pages/user-login.html/user-login.html">Log In</a>
+        </li>
+        <a class="nav-link px-2" href="Events"><i class="fas fa-search text-white"></i></a>
+        <li class="nav-item">
+          
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<!-- Hero Section -->
+<section class="hero position-relative text-center text-white">
+  <div class="container d-flex flex-column justify-content-center align-items-center">
+    <h1 class="text-white">Instant Access to the Hottest Events</h1>
+    <p class="text-white">Browse, Book, and Enjoy your Favorite Events Hassle-free.</p>
+    <a href="#events" class="btn btn-light mt-3 px-4 py-2">Explore Events</a>
+  </div>
+</section>
+
+
+<!-- Events Section -->
+<section id="event" class="events bg-light">
+  <div class="container">
+    <div class="row text-center mb-5">
+      <div class="col">
+        <h2 class="fw-bold">Upcoming Events</h2>
+        <p class="text-muted">Browse the hottest events happening near you</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      <!-- Event Cards -->
+      <div class="col-md-4">
+        <div class="card event-card p-3">
+          <img src="../assets/images/istockphoto-494388654-612x612.jpg" class="card-img-top rounded" alt="Event Image">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Summer Music Festival</h5>
+            <p class="card-text text-muted">Cape Town • 22 June 2025</p>
+            <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card event-card p-3">
+          <img src="../assets/images/photo-1619229666372-3c26c399a4cb.avif" class="card-img-top rounded" alt="Event Image">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Comedy Night Live</h5>
+            <p class="card-text text-muted">Johannesburg • 30 June 2025</p>
+            <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card event-card p-3">
+          <img src="../assets/images/pexels-photo-3892904.jpeg" class="card-img-top rounded" alt="Event Image">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Inspire Business Expo</h5>
+            <p class="card-text text-muted">Durban • 5 July 2025</p>
+            <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional 6 Event Cards -->
+      <div class="col-md-4">
+        <div class="card event-card p-3">
+          <img src="../assets/images/tech2.webp" class="card-img-top rounded" alt="Event Image">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Tech Innovation Summit</h5>
+            <p class="card-text text-muted">Pretoria • 10 July 2025</p>
+            <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card event-card p-3">
+          <img src="../assets/images/fashion8.jpeg" class="card-img-top rounded" alt="Event Image">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Urban Fashion Show</h5>
+            <p class="card-text text-muted">Sandton • 12 July 2025</p>
+            <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card event-card p-3">
+          <img src="../assets/images/streetfood1.webp" class="card-img-top rounded" alt="Event Image">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Street Food Carnival</h5>
+            <p class="card-text text-muted">Port Elizabeth • 14 July 2025</p>
+            <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card event-card p-3">
+          <img src="../assets/images/filmfest.webp" class="card-img-top rounded" alt="Event Image">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Indie Film Festival</h5>
+            <p class="card-text text-muted">Bloemfontein • 20 July 2025</p>
+            <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card event-card p-3">
+          <img src="../assets/images/autofest.jpeg" class="card-img-top rounded" alt="Event Image">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Auto Expo 2025</h5>
+            <p class="card-text text-muted">Midrand • 25 July 2025</p>
+            <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card event-card p-3">
+          <img src="../assets/images/art.webp" class="card-img-top rounded" alt="Event Image">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Art & Soul Showcase</h5>
+            <p class="card-text text-muted">Stellenbosch • 28 July 2025</p>
+            <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<section id="events" class="features py-5">
+  <div class="container">
+
+    <!-- Section Heading -->
+    <div class="row text-center mb-5">
+      <div class="col">
+        <h2 class="fw-bold">Browse Events by Category</h2>
+        <p class="text-muted">Click to expand each category and explore the events.</p>
+      </div>
+    </div>
+
+    <!-- Quick Search -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-md-8">
+        <form id="searchForm" class="d-flex gap-2" onsubmit="return false;">
+          <input id="searchInput" type="text" class="form-control" placeholder="Search event by name or artist" />
+          <select id="categorySelect" class="form-select">
+            <option value="all">All Categories</option>
+            <option value="gospel">Live Gospel</option>
+            <option value="concerts">Live Concerts</option>
+            <option value="comedies">Comedies</option>
+            <option value="other">Other</option>
+          </select>
+          <button id="searchBtn" class="btn btn-dark" type="button"><i class="fas fa-search"></i></button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Accordion -->
+    <div class="accordion" id="eventCategories">
+
+        <!-- Category Filter Buttons -->
+  <div class="mb-4">
+    <button class="btn btn-outline-primary me-2" onclick="filterCategories('all')">Event Categories</button>
+    <button class="btn btn-outline-primary me-2" onclick="filterCategories('gospel')">Gospel</button>
+    <button class="btn btn-outline-primary me-2" onclick="filterCategories('comedies')">Live Concerts</button>
+    <button class="btn btn-outline-primary me-2" onclick="filterCategories('comedies')">Lifestyle</button>
+    <button class="btn btn-outline-primary me-2" onclick="filterCategories('comedies')">Comedy shows</button>
+    <button class="btn btn-outline-primary me-2" onclick="filterCategories('comedies')">Sports & Fitness</button>
+    <button class="btn btn-outline-primary me-2" onclick="filterCategories('comedies')">Outdoor Events</button>
+    <button class="btn btn-outline-primary me-2" onclick="filterCategories('comedies')">Car Shows</button>
+    <button class="btn btn-outline-primary me-2" onclick="filterCategories('comedies')">Tech & Innovation</button>
+    <!-- Add more category buttons if needed -->
+  </div>
+
+
+      <!-- Gospel -->
+      <div class="accordion-item category gospel">
+        <h2 class="accordion-header" id="headingGospel">
+          <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGospel" aria-expanded="true">
+            🎤 Live Gospel Events
+          </button>
+        </h2>
+        <div id="collapseGospel" class="accordion-collapse collapse show" data-bs-parent="#eventCategories">
+          <div class="accordion-body">
+            <div class="row g-4">
+              <div class="col-md-4">
+                <div class="card p-3">
+                  <img src="../assets/images/gospel1.jpg" class="card-img-top rounded" alt="Gospel Event">
+                  <div class="card-body">
+                    <h5 class="card-title">Praise Explosion Night</h5>
+                    <p class="text-muted">Soweto • 10 August 2025</p>
+                    <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card p-3">
+                  <img src="../assets/images/gospel2.jpg" class="card-img-top rounded" alt="Worship Event">
+                  <div class="card-body">
+                    <h5 class="card-title">Mass Worship Live</h5>
+                    <p class="text-muted">Pretoria • 18 August 2025</p>
+                    <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card p-3">
+                  <img src="../assets/images/gospel3.jpg" class="card-img-top rounded" alt="Church Revival">
+                  <div class="card-body">
+                    <h5 class="card-title">Revival Weekend</h5>
+                    <p class="text-muted">East London • 24 August 2025</p>
+                    <a href="#" class="btn btn-orange w-100">Buy Ticket</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Concerts -->
+      <div class="accordion-item category concerts">
+        <h2 class="accordion-header" id="headingConcerts">
+          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConcerts">
+            🎶 Live Concerts
+          </button>
+        </h2>
+        <div id="collapseConcerts" class="accordion-collapse collapse" data-bs-parent="#eventCategories">
+          <div class="accordion-body">
+            <p>Concert events will go here.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comedies -->
+      <div class="accordion-item category comedies">
+        <h2 class="accordion-header" id="headingComedies">
+          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseComedies">
+            😂 Comedies & Stand-up
+          </button>
+        </h2>
+        <div id="collapseComedies" class="accordion-collapse collapse" data-bs-parent="#eventCategories">
+          <div class="accordion-body">
+            <p>Comedy events will go here.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other -->
+      <div class="accordion-item category other">
+        <h2 class="accordion-header" id="headingOther">
+          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOther">
+            ✨ Other Event Perks
+          </button>
+        </h2>
+        <div id="collapseOther" class="accordion-collapse collapse" data-bs-parent="#eventCategories">
+          <div class="accordion-body">
+            <p>Other events will go here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const categorySelect = document.getElementById('categorySelect');
+    const searchBtn = document.getElementById('searchBtn');
+    const categories = document.querySelectorAll('.accordion-item.category');
+
+    function filterCategories() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedCategory = categorySelect.value;
+
+      categories.forEach(category => {
+        const categoryClass = Array.from(category.classList).find(cls =>
+          ['gospel', 'concerts', 'comedies', 'other'].includes(cls)
+        );
+        const text = category.textContent.toLowerCase();
+        const matchesCategory = selectedCategory === 'all' || categoryClass === selectedCategory;
+        const matchesSearch = !searchTerm || text.includes(searchTerm);
+
+        category.style.display = matchesCategory && matchesSearch ? '' : 'none';
+      });
+    }
+
+    searchBtn.addEventListener('click', filterCategories);
+    searchInput.addEventListener('keyup', e => {
+      if (e.key === 'Enter') filterCategories();
+    });
+    categorySelect.addEventListener('change', filterCategories);
+  </script>
+</section>
+
+
+
+<!-- Features Section -->
+<section id="features" class="features">
+  <div class="container">
+    <div class="row text-center mb-5">
+      <div class="col">
+        <h2 class="fw-bold">The Tickify Advantages</h2>
+        <p class="text-muted">Easy ticketing for every event, every time.</p>
+      </div>
+    </div>
+    <div class="row g-4">
+  <!-- Card 1 -->
+  <div class="col-md-4">
+    <div class="card feature-card p-4 text-center">
+      <div class="feature-icon"><i class="fas fa-rocket"></i></div>
+      <h5 class="fw-bold text-orange">Quick Setup</h5>
+      <p>Promoters can get events live in minutes, no tech skills needed.</p>
+    </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="col-md-4">
+    <div class="card feature-card p-4 text-center">
+      <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+      <h5 class="fw-bold text-orange">Instant Booking</h5>
+      <p>Customers can browse and buy tickets from any device anytime.</p>
+    </div>
+  </div>
+
+  <!-- Card 3 -->
+  <div class="col-md-4">
+    <div class="card feature-card p-4 text-center">
+      <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+      <h5 class="fw-bold text-orange">Mobile Friendly</h5>
+      <p>Fully responsive design that works great on phones and tablets.</p>
+    </div>
+  </div>
+
+  <!-- Card 4 -->
+  <div class="col-md-4">
+    <div class="card feature-card p-4 text-center">
+      <div class="feature-icon"><i class="fas fa-lock"></i></div>
+      <h5 class="fw-bold text-orange">Secure Payments</h5>
+      <p>End-to-end encrypted transactions to protect your customers.</p>
+    </div>
+  </div>
+
+  <!-- Card 5 -->
+  <div class="col-md-4">
+    <div class="card feature-card p-4 text-center">
+      <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+      <h5 class="fw-bold text-orange">Real-Time Analytics</h5>
+      <p>Track ticket sales and event performance as it happens.</p>
+    </div>
+  </div>
+
+  <!-- Card 6 -->
+  <div class="col-md-4">
+    <div class="card feature-card p-4 text-center">
+      <div class="feature-icon"><i class="fas fa-headset"></i></div>
+      <h5 class="fw-bold text-orange">Dedicated Support</h5>
+      <p>Our team is ready to help with anything, anytime you need us.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- Call to Action -->
+<section id="signup" class="py-5">
+  <div class="container text-left">
+    <h2 class="fw-bold mb-3">Promote Your Event on Tickify</h2>
+    <p class="mb-4">Create your seller account and start earning from your event today.</p>
+    <a href="../pages/event-listing.html/list-your-event.html" class="btn btn-orange btn-lg px-5 py-2">Create Your Seller Account</a>
+  </div>
+</section>
+
+
+<!-- Footer -->
+<footer class="footer bg-dark text-white py-5">
+  <div class="container">
+    <div class="row">
+      <!-- Help & Info -->
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold mb-3 text-start">Help & Info</h5>
+        <ul class="list-unstyled text-start">
+             <li><a href="./" class="text-white text-decoration-none d-block">Home</a></li>
+          <li><a href="../pages/faq.html/faq.html" class="text-white text-decoration-none d-block">FAQ</a></li>
+          <li><a href="../pages/popia.html/popia.html" class="text-white text-decoration-none d-block">POPIA</a></li>
+          <li><a href="../pages/privacy.html/privacy.html" class="text-white text-decoration-none d-block">Terms & Privacy</a></li>
+          <li><a href="/pages/event-listing.html/list-your-event.html" class="text-white text-decoration-none d-block">List Your Event</a></li>
+        </ul>
+      </div>
+
+      <!-- Accounts & Support -->
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold mb-3 text-start">Accounts & Support</h5>
+        <ul class="list-unstyled text-start">
+             <li><a href="#" class="text-white text-decoration-none d-block">Contact</a></li>
+           <li><a href="/pages/support.html/support.html" class="text-white text-decoration-none d-block">Support</a></li>
+          <li><a href="/pages/user-profiel-portal.html/my-profiel.html" class="text-white text-decoration-none d-block">My Profile</a></li>
+          <li><a href="/pages/ticket-portal.html/my-tickets.html" class="text-white text-decoration-none d-block">My Tickets</a></li>
+          <li><a href="/pages/create-account.html/create-account.html" class="text-white text-decoration-none d-block">Create Account</a></li>
+        </ul>
+      </div>
+
+      <!-- Socials -->
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold mb-3 text-start">Socials</h5>
+        <div class="d-flex gap-3 text-start">
+          <a href="#" class="text-white fs-4"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="text-white fs-4"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="text-white fs-4"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="text-white fs-4"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+    </div>
+    <p class="text-center small mb-0">&copy; 2025 Tickify. All rights reserved.</p>
+  </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
